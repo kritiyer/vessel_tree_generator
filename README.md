@@ -4,6 +4,10 @@ This repository can be used to generate random vessels or vessel trees.
 Vessel trees are encoded and saved as an MxNX4 matrix, where M is the number of branches in the tree, 
 N is the number of interpolated centerline points per branch, and the last dimension corresponds to the (x,y,z) coordinates and radius r for each centerline point.
 
+![example-single-splines](./example_images/splines.png)
+
+![example-coronaries](./example_images/coronary_trees.png)
+
 The vessel tree generator is highly customizable. Many parameters are randomized by default but can be specified if the user would like more control over the geometries.
 Parameters include:
  - vessel tree type: cylinders, random splines, or right coronary tree
