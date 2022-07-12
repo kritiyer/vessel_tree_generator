@@ -14,6 +14,7 @@ parser = argparse.ArgumentParser('3D vessel tree generator')
 parser.add_argument('--save_path', default=None, type=str)
 parser.add_argument('--dataset_name', default=None, type=str)
 parser.add_argument('--num_trees', default=10, type=int)
+parser.add_argument('--save_visualization', action='store_true', help="this flag will plot the generated 3D surfaces and save it as a PNG")
 
 # centerlines: optional
 parser.add_argument('--num_branches', default=0, type=int,
@@ -33,9 +34,9 @@ parser.add_argument('--stenosis_length', default=None, type=int, help="number of
 
 
 #projections: optional
+parser.add_argument('--generate_projections', action="store_true")
 parser.add_argument('--num_projections', default=3, type=int,
                     help="number of random projection images to generate")
-# projection angles?
 args = parser.parse_args()
 
 random.seed(3)
@@ -169,36 +170,37 @@ if __name__ == "__main__":
             continue
 
         # optional: plot 3D surface
-
-        # fig = plt.figure(figsize=(2,2), dpi=200, constrained_layout=True)
-        # ax = fig.add_subplot(projection=Axes3D.name)
-        # ax.view_init(elev=20., azim=-70)
-        # for surf_coords in surface_coords:
-        #     ax.plot_surface(surf_coords[:,:,0], surf_coords[:,:,1], surf_coords[:,:,2], alpha=0.5, color="blue")
-        # set_axes_equal(ax)
-        # plt.axis('off')
-        # plt.show()
-        # plt.close()
+        if args.save_visualization:
+            fig = plt.figure(figsize=(2,2), dpi=200, constrained_layout=True)
+            ax = fig.add_subplot(projection=Axes3D.name)
+            ax.view_init(elev=20., azim=-70)
+            for surf_coords in surface_coords:
+                ax.plot_surface(surf_coords[:,:,0], surf_coords[:,:,1], surf_coords[:,:,2], alpha=0.5, color="blue")
+            set_axes_equal(ax)
+            plt.axis('off')
+            # plt.show()
+            plt.savefig(os.path.join(save_path, dataset_name, "{:04d}_3Dsurface".format(spline_index)), bbox_inches='tight')
+            plt.close()
 
         ###################################
-        ###### optional: projections ######
+        ######       projections     ######
         ###################################
-        # img_dim = 512
-        # ImagerPixelSpacing = 0.35
-        # SID = 1.2
-        #
-        # vessel_info["ImagerPixelSpacing"] = ImagerPixelSpacing
-        # vessel_info["SID"] = SID
-        #
-        # # centering vessel at origin for cone-beam projections
-        # centered_coords = np.subtract(coords, np.mean(surface_coords[0].reshape(-1,3), axis=0))
-        # use_RCA_angles = args.vessel_type == "RCA"
-        # images, theta_array, phi_array = generate_projection_images(centered_coords, spline_index,
-        #                                                             num_projections, img_dim, save_path, dataset_name,
-        #                                                             ImagerPixelSpacing, SID, RCA=use_RCA_angles)
-        # vessel_info['theta_array'] = [float(i) for i in theta_array.tolist()]
-        # vessel_info['phi_array'] = [float(j) for j in phi_array.tolist()]
+        if args.generate_projections:
+            img_dim = 512
+            ImagerPixelSpacing = 0.35
+            SID = 1.2
 
+            vessel_info["ImagerPixelSpacing"] = ImagerPixelSpacing
+            vessel_info["SID"] = SID
+
+            # centering vessel at origin for cone-beam projections
+            centered_coords = np.subtract(coords, np.mean(surface_coords[0].reshape(-1,3), axis=0))
+            use_RCA_angles = args.vessel_type == "RCA"
+            images, theta_array, phi_array = generate_projection_images(centered_coords, spline_index,
+                                                                        num_projections, img_dim, save_path, dataset_name,
+                                                                        ImagerPixelSpacing, SID, RCA=use_RCA_angles)
+            vessel_info['theta_array'] = [float(i) for i in theta_array.tolist()]
+            vessel_info['phi_array'] = [float(j) for j in phi_array.tolist()]
 
         #saves geometry as npy file (X,Y,Z,R) matrix
         if not os.path.exists(os.path.join(save_path, dataset_name, "labels", dataset_name)):

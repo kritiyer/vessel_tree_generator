@@ -43,7 +43,7 @@ def random_spline(length, degree, num_control_points, sample_size):
     recentered_y = y - y[0]
     z = np.linspace(-length/2, length/2, num_control_points)
     ctrl_pts = np.stack((recentered_x, recentered_y, z), axis=1).tolist()
-    rotated_ctrl_pts = rotate_branch(ctrl_pts, 0, 90, center_rotation=True).tolist() #switches orientation to X-axis, optional
+    rotated_ctrl_pts = rotate_branch(ctrl_pts, 0, 0, center_rotation=True).tolist() #switches orientation to X-axis, optional
 
     curve = BSpline.Curve()
     curve.degree = degree

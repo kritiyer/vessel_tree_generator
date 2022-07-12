@@ -28,6 +28,30 @@ python ./tube_generator.py --save_path="/path/to/save" --dataset_name="test" --n
 
 `tube_generator.py` contains optional code to generate random binary projections of the 3D geometries.
 
+For each generated geometry, the output will be:
+- numpy file containing MxNx4 matrix
+- info.0 JSON file containing parameters used for data generation
+- binary projection images (optional)
+
+
+The output directory structure will be as follows:
+
+-- save_path directory\
+&nbsp; &nbsp; --> dataset_name directory\
+&nbsp; &nbsp;&nbsp; &nbsp; --> labels\
+&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; - 0000.npy\
+&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; - 0001.npy\
+&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; - 0002.npy\
+&nbsp; &nbsp;&nbsp; &nbsp; --> info\
+&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; - 0000.info.0\
+&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; - 0001.info.0\
+&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; - 0002.info.0\
+&nbsp; &nbsp;&nbsp; &nbsp; --> images (only if using `--generate_projections` flag)\
+&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; - image0000a.png, image0000b.png, image0000c.png\
+&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; - image0001a.png, image0001b.png, image0001c.png\
+&nbsp; &nbsp;&nbsp; &nbsp;&nbsp;&nbsp; - image0002a.png, image0002b.png, image0002c.png
+
+
 ### To do:
 
 - implement left coronary tree, other vessels
