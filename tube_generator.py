@@ -37,6 +37,7 @@ parser.add_argument('--stenosis_length', default=None, type=int, help="number of
 parser.add_argument('--generate_projections', action="store_true")
 parser.add_argument('--num_projections', default=3, type=int,
                     help="number of random projection images to generate")
+# TODO: specify angles/windows for random projections
 args = parser.parse_args()
 
 random.seed(3)
@@ -52,7 +53,7 @@ if not os.path.exists(save_path):
 
 jj = args.centerline_supersampling
 num_projections = args.num_projections
-num_centerline_points = 250 # number of interpolated centerline points to save
+num_centerline_points = args.num_centerline_points # number of interpolated centerline points to save
 supersampled_num_centerline_points = jj * num_centerline_points #use larger number of centerline points to create solid surface for projections, if necessary
 num_branches = args.num_branches  # set to 0 if not adding side branches
 order = 3
@@ -160,7 +161,7 @@ if __name__ == "__main__":
             vessel_info[key]['max_radius'] = float(new_radius_vec[0]*1000)
             vessel_info[key]['min_radius'] = float(new_radius_vec[-1]*1000)
             if connections[ind] is not None:
-                vessel_info[key]['branch_point'] = int(connections[ind])
+                vessel_info[key]['branch_point'] = int(connections[ind]/jj)
             if rand_stenoses > 0:
                 vessel_info[key]['stenosis_severity'] = [float(i) for i in percent_stenosis]
                 vessel_info[key]['stenosis_position'] = [int(i/jj) for i in stenosis_pos]
@@ -178,7 +179,7 @@ if __name__ == "__main__":
                 for surf_coords in surface_coords:
                     ax.plot_surface(surf_coords[:,:,0], surf_coords[:,:,1], surf_coords[:,:,2], alpha=0.5, color="blue")
                 set_axes_equal(ax)
-                # plt.axis('off')
+                plt.axis('off')
                 # plt.show()
                 plt.savefig(os.path.join(save_path, dataset_name, "{:04d}_3Dsurface".format(spline_index)), bbox_inches='tight')
                 plt.close()
