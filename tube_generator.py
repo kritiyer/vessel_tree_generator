@@ -64,7 +64,7 @@ main_branch_properties = {
     3: {"name": "LCx", "min_length": 0.080, "max_length": 0.100, "max_diameter": 0.0045},
 }
 
-# these radii correspond to RCA tree branches, can modify for other trees
+# these values correspond to RCA tree branches, can modify for other trees
 side_branch_properties = {
     1: {"name": "SA", "length": 0.035, "min_radius": 0.0009, "max_radius": 0.0011, "parametric_position": [0.03, 0.12]},
     2: {"name": "AM", "length": 0.0506, "min_radius": 0.001, "max_radius": 0.0012, "parametric_position": [0.18, 0.35]},
@@ -77,7 +77,7 @@ vessel_dict = {'num_stenoses': None, 'stenosis_severity': [], 'stenosis_position
 if __name__ == "__main__":
     for i in range(num_trees):
         spline_index = i
-        if (i+1)%100 == 0:
+        if (i+1)%10 == 0:
             print("Completed {}/{} vessels".format(spline_index+1, num_trees))
 
         #############################
@@ -171,16 +171,17 @@ if __name__ == "__main__":
 
         # optional: plot 3D surface
         if args.save_visualization:
-            fig = plt.figure(figsize=(2,2), dpi=200, constrained_layout=True)
-            ax = fig.add_subplot(projection=Axes3D.name)
-            ax.view_init(elev=20., azim=-70)
-            for surf_coords in surface_coords:
-                ax.plot_surface(surf_coords[:,:,0], surf_coords[:,:,1], surf_coords[:,:,2], alpha=0.5, color="blue")
-            set_axes_equal(ax)
-            plt.axis('off')
-            # plt.show()
-            plt.savefig(os.path.join(save_path, dataset_name, "{:04d}_3Dsurface".format(spline_index)), bbox_inches='tight')
-            plt.close()
+            if i < 10:
+                fig = plt.figure(figsize=(2,2), dpi=200, constrained_layout=True)
+                ax = fig.add_subplot(projection=Axes3D.name)
+                ax.view_init(elev=20., azim=-70)
+                for surf_coords in surface_coords:
+                    ax.plot_surface(surf_coords[:,:,0], surf_coords[:,:,1], surf_coords[:,:,2], alpha=0.5, color="blue")
+                set_axes_equal(ax)
+                # plt.axis('off')
+                # plt.show()
+                plt.savefig(os.path.join(save_path, dataset_name, "{:04d}_3Dsurface".format(spline_index)), bbox_inches='tight')
+                plt.close()
 
         ###################################
         ######       projections     ######

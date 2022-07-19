@@ -27,10 +27,11 @@ scikit-image (skimage)\
 ## Usage
 
 ```commandline
-python ./tube_generator.py --save_path="/path/to/save" --dataset_name="test" --num_trees=10 --num_branches=3 --vessel_type='RCA' --shear
+python ./tube_generator.py --save_path="/path/to/save" --dataset_name="test" --num_trees=10 --num_branches=3 --vessel_type='RCA' --shear --save_visualization
 ```
 
-`tube_generator.py` contains optional code to generate random binary projections of the 3D geometries.
+`tube_generator.py` contains optional code to generate random binary projections of the 3D geometries. 
+These images can be generated using the `--generate_projections` flag.
 
 For each generated geometry, the output will be:
 - numpy file containing MxNx4 matrix
