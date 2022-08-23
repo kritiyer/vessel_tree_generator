@@ -19,7 +19,7 @@ parser.add_argument('--save_visualization', action='store_true', help="this flag
 # centerlines: optional
 parser.add_argument('--num_branches', default=0, type=int,
                     help="Number of side branches. Set to 0 for no side branches")
-parser.add_argument('--set_length', default=0.0, type=float, help="fix vessel length instead of randomizing within range")
+parser.add_argument('--set_length', default=None, type=float, help="fix vessel length instead of randomizing within range")
 parser.add_argument('--vessel_type', default="RCA", type=str, help="Options are: 'cylinder, 'spline', and 'RCA'")
 parser.add_argument('--control_point_path', default="./RCA_branch_control_points/moderate", type=str)
 parser.add_argument('--num_centerline_points', default=200, type=int)
@@ -29,6 +29,7 @@ parser.add_argument('--warp', action='store_true', help="add random warping augm
 
 #radii/stenoses: optional
 parser.add_argument('--constant_radius', action='store_true')
+parser.add_argument('--set_diameter', default=None, type=float)
 parser.add_argument('--num_stenoses', default=None, type=int)
 parser.add_argument('--stenosis_type', default="gaussian", type=str)
 parser.add_argument('--stenosis_position', nargs="*", default=None, type=int)
@@ -98,7 +99,7 @@ if __name__ == "__main__":
         branch_ID = 1
         vessel_info["tree_type"].append(main_branch_properties[branch_ID]["name"])
 
-        if args.set_length == 0.0:
+        if args.set_length is None:
             length = random.uniform(main_branch_properties[branch_ID]['min_length'], main_branch_properties[branch_ID]['max_length']) # convert to [m] to stay consistent with projection setup
         else:
             length = args.set_length
@@ -132,8 +133,10 @@ if __name__ == "__main__":
                 rand_stenoses = np.random.randint(0, 3)
                 key = "main_vessel"
                 main_is_true = True
-                max_radius = [random.uniform(0.004, main_branch_properties[branch_ID]['max_diameter']) / 2]
-
+                if args.set_diameter is None:
+                    max_radius = [random.uniform(0.004, main_branch_properties[branch_ID]['max_diameter']) / 2]
+                else:
+                    max_radius = [args.set_diameter/2]
             else:
                 rand_stenoses = np.random.randint(0, 2)
                 max_radius = [random.uniform(side_branch_properties[ind]['min_radius'], side_branch_properties[ind]['max_radius'])]
