@@ -194,8 +194,15 @@ def stenosis_generator(num_stenoses, radius_vector, branch_points, is_main = Tru
     else:
         #size (length of stenosis in points) must be an even number, otherwise indexing doesn't match up
         len_stenosis = [random.randint(int(0.08*num_centerline_points),int(0.12*num_centerline_points))*2 for i in range(num_stenoses)]
+    
     for i in range(num_stenoses):
         pos = stenosis_position[i]
+
+        # Make sure the length of the stenosis is an even number of points
+        if len_stenosis[i]%2 !=0:
+            len_stenosis[i] = len_stenosis[i]-1
+            print('Changed length of stenosis to an even number')
+
         if stenosis_type == "gaussian":
             mu = 0
             sigma = 0.5
@@ -205,8 +212,10 @@ def stenosis_generator(num_stenoses, radius_vector, branch_points, is_main = Tru
             stenosis_vec = cosine_stenosis(delta,len_stenosis[i])
 
         scaled_vec = (stenosis_vec/np.max(stenosis_vec))*stenosis_severity[i] # Get numbers from 0-1, then scale based on severity
+        
         stenStart = pos-int(len_stenosis[i]/2)
         stenEnd = pos+int(len_stenosis[i]/2)
+
         new_radius_vector[stenStart:stenEnd] = new_radius_vector[stenStart:stenEnd] - np.multiply(scaled_vec,radius_vector[stenStart:stenEnd])
         vessel_stenosis_positions = stenosis_position
     return new_radius_vector, stenosis_severity, vessel_stenosis_positions, len_stenosis
