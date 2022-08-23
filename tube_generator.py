@@ -11,8 +11,8 @@ import argparse
 
 # general: required arguments
 parser = argparse.ArgumentParser('3D vessel tree generator')
-parser.add_argument('--save_path', default=None, type=str)
-parser.add_argument('--dataset_name', default=None, type=str)
+parser.add_argument('--save_path', default=None, type=str, required=True)
+parser.add_argument('--dataset_name', default="test", type=str)
 parser.add_argument('--num_trees', default=10, type=int)
 parser.add_argument('--save_visualization', action='store_true', help="this flag will plot the generated 3D surfaces and save it as a PNG")
 
@@ -22,15 +22,16 @@ parser.add_argument('--num_branches', default=0, type=int,
 parser.add_argument('--vessel_type', default="RCA", type=str, help="Options are: 'cylinder, 'spline', and 'RCA'")
 parser.add_argument('--control_point_path', default="./RCA_branch_control_points/moderate", type=str)
 parser.add_argument('--num_centerline_points', default=200, type=int)
-parser.add_argument('--centerline_supersampling', default=4, type=int, help="factor by which to super-sample centerline points when generating vessel surface")
+parser.add_argument('--centerline_supersampling', default=1, type=int, help="factor by which to super-sample centerline points when generating vessel surface")
 parser.add_argument('--shear', action='store_true', help="add random shear augmentation")
 parser.add_argument('--warp', action='store_true', help="add random warping augmentation")
 
 #radii/stenoses: optional
 parser.add_argument('--constant_radius', action='store_true')
-parser.add_argument('--stenosis_position', default=None, type=int)
-parser.add_argument('--stenosis_severity', default=None, type=float)
-parser.add_argument('--stenosis_length', default=None, type=int, help="number of points in radius vector where stenosis will be introduced")
+parser.add_argument('--num_stenoses', default=None, type=int)
+parser.add_argument('--stenosis_position', nargs="+", default=None, type=int)
+parser.add_argument('--stenosis_severity', nargs="+", default=None, type=float)
+parser.add_argument('--stenosis_length', nargs="+", default=None, type=int, help="number of points in radius vector where stenosis will be introduced")
 
 
 #projections: optional
@@ -134,6 +135,9 @@ if __name__ == "__main__":
             percent_stenosis = None
             stenosis_pos = None
             num_stenosis_points = None
+
+            if args.num_stenoses is not None:
+                rand_stenoses = args.num_stenoses
 
             try:
                 X,Y,Z, new_radius_vec, percent_stenosis, stenosis_pos, num_stenosis_points = get_vessel_surface(C, dC, connections, supersampled_num_centerline_points, num_theta, max_radius,

@@ -215,8 +215,8 @@ def generate_projection_images(surface_coords, spline_index, num_projections, im
     random.shuffle(shuffle_inds)
 
     # random splines or cylinders
-    theta_array = np.array([-90, random.uniform(-75, -55), random.uniform(-40,-20)])[:num_projections]
-    phi_array = -(np.array([90, random.uniform(45, 65), random.uniform(15,35)])[:num_projections])+90
+    theta_array = np.array([-90, random.uniform(-75, -55), random.uniform(-40,-20), random.uniform(30,60)])[:num_projections]
+    phi_array = -(np.array([90, random.uniform(45, 65), random.uniform(15,35), random.uniform(80,110)])[:num_projections])+90
 
     # RCA uses standard clinical angles and a few other angles where most branches are visible
     if RCA:

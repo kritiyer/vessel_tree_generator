@@ -139,7 +139,7 @@ def stenosis_generator(num_stenoses, radius_vector, branch_points, is_main = Tru
     :param num_stenoses: number of stenoses to create (typically 1 to 3)
     :param radius_vector: original radius at every point along centerline
     :param stenosis_severity: list: % diameter reduction for each stenosis. len(stenosis_severity) must equal num_stenoses
-    :param stenosis_position: int: index of centerline point indicating location of stenosis
+    :param stenosis_position: list: index of centerline point indicating location of stenosis
     :param stenosis_length: list: length of each stenosis w.r.t centerline coordinates. len(num_stenosis_points) must equal num_stenoses
     :param stenosis_type: string: Geometry of stenosis profile. Valid arguments are "gaussian" [TODO: implement "cosine"]
     :return: new radius vector containing stenoses
@@ -320,8 +320,8 @@ def branched_tree_generator(parent_curve, curve_derivative, num_branches, sample
             while np.any(np.abs(np.array(connections[1:])-pos) < 0.07*sample_size):
                 pos = np.random.randint(0.1*sample_size, sample_size-0.1*sample_size)
 
-        theta = np.random.randint(30,60)*(-1)**random.getrandbits(1)
-        phi = np.random.randint(45,75)*(-1)**random.getrandbits(1)
+        theta = np.random.randint(30, 60)*(-1)**random.getrandbits(1)
+        phi = np.random.randint(45, 75)*(-1)**random.getrandbits(1)
         if curve_type == "spline":
             num_control_points = random.randint(4,8)
             C, _ = random_spline(branch_length, 3, num_control_points, sample_size)
