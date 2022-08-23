@@ -130,9 +130,24 @@ def rotate_branch(control_points, theta, phi, center_rotation=False):
     return rotated_control_points
 
 def gaussian(mu, sigma, num_points):
+    '''
+    Returns the gaussian 
+    '''
     x = np.linspace(-2,2,num_points)
     bell_curve_vector = 1/(sigma * 2*np.pi)*np.exp(-0.5*((x-mu)/sigma)**2)
     return bell_curve_vector
+
+def cosine_stenosis(delta, num_points):
+    '''
+    delta: height of the stenosis
+    num_points: length of the stenosis int pts
+    '''
+    Z0 = num_points/2 # length of stenosis is 2Z0
+    x = np.linspace(-Z0,Z0,num_points)
+
+    cos_vector = (delta/2)*(1 + np.cos((np.pi*x)/Z0))
+
+    return cos_vector
 
 def stenosis_generator(num_stenoses, radius_vector, branch_points, is_main = True, stenosis_severity=None, stenosis_position=None, stenosis_length=None, stenosis_type="gaussian"):
     '''
@@ -185,13 +200,14 @@ def stenosis_generator(num_stenoses, radius_vector, branch_points, is_main = Tru
             mu = 0
             sigma = 0.5
             stenosis_vec = gaussian(mu, sigma, len_stenosis[i])
-        # TODO
-        # elif stenosis_type = "cosine":
-        #     stenosis_vec = cosine_stenosis()
+        elif stenosis_type == "cosine":
+            delta = stenosis_severity[i]*radius_vector[0]
+            stenosis_vec = cosine_stenosis(delta,len_stenosis[i])
 
-        scaled_vec = stenosis_vec/np.max(stenosis_vec)*stenosis_severity[i]
-        new_radius_vector[pos-int(len_stenosis[i]/2):pos+int(len_stenosis[i]/2)] = new_radius_vector[pos-int(len_stenosis[i]/2):pos+int(len_stenosis[i]/2)] \
-                                                             - np.multiply(scaled_vec,radius_vector[pos-int(len_stenosis[i]/2):pos+int(len_stenosis[i]/2)])
+        scaled_vec = (stenosis_vec/np.max(stenosis_vec))*stenosis_severity[i] # Get numbers from 0-1, then scale based on severity
+        stenStart = pos-int(len_stenosis[i]/2)
+        stenEnd = pos+int(len_stenosis[i]/2)
+        new_radius_vector[stenStart:stenEnd] = new_radius_vector[stenStart:stenEnd] - np.multiply(scaled_vec,radius_vector[stenStart:stenEnd])
         vessel_stenosis_positions = stenosis_position
     return new_radius_vector, stenosis_severity, vessel_stenosis_positions, len_stenosis
 

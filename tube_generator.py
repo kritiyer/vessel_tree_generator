@@ -12,13 +12,14 @@ import argparse
 # general: required arguments
 parser = argparse.ArgumentParser('3D vessel tree generator')
 parser.add_argument('--save_path', default=None, type=str, required=True)
-parser.add_argument('--dataset_name', default="test", type=str)
-parser.add_argument('--num_trees', default=10, type=int)
+parser.add_argument('--dataset_name', default=None, type=str, required=True)
+parser.add_argument('--num_trees', default=10, type=int, required=True)
 parser.add_argument('--save_visualization', action='store_true', help="this flag will plot the generated 3D surfaces and save it as a PNG")
 
 # centerlines: optional
 parser.add_argument('--num_branches', default=0, type=int,
                     help="Number of side branches. Set to 0 for no side branches")
+parser.add_argument('--set_length', default=0.0, type=float, help="fix vessel length instead of randomizing within range")
 parser.add_argument('--vessel_type', default="RCA", type=str, help="Options are: 'cylinder, 'spline', and 'RCA'")
 parser.add_argument('--control_point_path', default="./RCA_branch_control_points/moderate", type=str)
 parser.add_argument('--num_centerline_points', default=200, type=int)
@@ -29,6 +30,7 @@ parser.add_argument('--warp', action='store_true', help="add random warping augm
 #radii/stenoses: optional
 parser.add_argument('--constant_radius', action='store_true')
 parser.add_argument('--num_stenoses', default=None, type=int)
+parser.add_argument('--stenosis_type', default="gaussian", type=str)
 parser.add_argument('--stenosis_position', nargs="*", default=None, type=int)
 parser.add_argument('--stenosis_severity', nargs="*", default=None, type=float)
 parser.add_argument('--stenosis_length', nargs="*", default=None, type=int, help="number of points in radius vector where stenosis will be introduced")
@@ -96,7 +98,10 @@ if __name__ == "__main__":
         branch_ID = 1
         vessel_info["tree_type"].append(main_branch_properties[branch_ID]["name"])
 
-        length = random.uniform(main_branch_properties[branch_ID]['min_length'], main_branch_properties[branch_ID]['max_length']) # convert to [m] to stay consistent with projection setup
+        if args.set_length == 0.0:
+            length = random.uniform(main_branch_properties[branch_ID]['min_length'], main_branch_properties[branch_ID]['max_length']) # convert to [m] to stay consistent with projection setup
+        else:
+            length = args.set_length
         sample_size = supersampled_num_centerline_points
 
         if args.vessel_type == 'cylinder':
@@ -150,7 +155,7 @@ if __name__ == "__main__":
                                                                                                          stenosis_severity=args.stenosis_severity,
                                                                                                          stenosis_position=args.stenosis_position,
                                                                                                          stenosis_length=args.stenosis_length,
-                                                                                                         stenosis_type="gaussian",
+                                                                                                         stenosis_type=args.stenosis_type,
                                                                                                          return_surface=True)
             except ValueError:
                 print("Invalid sampling, skipping {}".format(i))
@@ -180,7 +185,7 @@ if __name__ == "__main__":
         # optional: plot 3D surface
         if args.save_visualization:
             if i < 10:
-                fig = plt.figure(figsize=(2,2), dpi=200, constrained_layout=True)
+                fig = plt.figure(figsize=(2,2), dpi=600, constrained_layout=True)
                 ax = fig.add_subplot(projection=Axes3D.name)
                 ax.view_init(elev=20., azim=-70)
                 for surf_coords in surface_coords:
