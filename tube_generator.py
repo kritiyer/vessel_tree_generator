@@ -29,9 +29,9 @@ parser.add_argument('--warp', action='store_true', help="add random warping augm
 #radii/stenoses: optional
 parser.add_argument('--constant_radius', action='store_true')
 parser.add_argument('--num_stenoses', default=None, type=int)
-parser.add_argument('--stenosis_position', nargs="+", default=None, type=int)
-parser.add_argument('--stenosis_severity', nargs="+", default=None, type=float)
-parser.add_argument('--stenosis_length', nargs="+", default=None, type=int, help="number of points in radius vector where stenosis will be introduced")
+parser.add_argument('--stenosis_position', nargs="*", default=None, type=int)
+parser.add_argument('--stenosis_severity', nargs="*", default=None, type=float)
+parser.add_argument('--stenosis_length', nargs="*", default=None, type=int, help="number of points in radius vector where stenosis will be introduced")
 
 
 #projections: optional
@@ -51,6 +51,9 @@ num_trees = args.num_trees
 if not os.path.exists(save_path):
     os.makedirs(save_path)
     print("created {}".format(save_path))
+if not os.path.exists(os.path.join(save_path,dataset_name)):
+    os.makedirs(os.path.join(save_path,dataset_name))
+    print("created {}".format(os.path.join(save_path,dataset_name)))
 
 jj = args.centerline_supersampling
 num_projections = args.num_projections
