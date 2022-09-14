@@ -196,7 +196,15 @@ if __name__ == "__main__":
                 set_axes_equal(ax)
                 plt.axis('off')
                 # plt.show()
-                plt.savefig(os.path.join(save_path, dataset_name, "{:04d}_3Dsurface".format(spline_index)), bbox_inches='tight')
+                plt.savefig(os.path.join(save_path, dataset_name, f"{dataset_name}_3D"), bbox_inches='tight')
+                plt.close()
+
+                # plt.plot(C*1e3,np.expand_dims(new_radius_vec, axis=-1)*1e3)
+                plt.plot(C[:,0]*1e3,new_radius_vec*1e3)
+                plt.ylabel('Radius [mm]')
+                plt.xlabel('Position [mm]')
+                # plt.title(f'Stenosis is {int(num_stenosis_points[0]*(120/300))} mm long')
+                plt.savefig(os.path.join(save_path, dataset_name, f"{dataset_name}_2D"), bbox_inches='tight')
                 plt.close()
 
         ###################################
@@ -220,15 +228,16 @@ if __name__ == "__main__":
             vessel_info['phi_array'] = [float(j) for j in phi_array.tolist()]
 
         #saves geometry as npy file (X,Y,Z,R) matrix
-        if not os.path.exists(os.path.join(save_path, dataset_name, "labels", dataset_name)):
-            os.makedirs(os.path.join(save_path, dataset_name, "labels", dataset_name))
-        if not os.path.exists(os.path.join(save_path, dataset_name, "info")):
-            os.makedirs(os.path.join(save_path, dataset_name, "info"))
-
-        #saves geometry as npy file (X,Y,Z,R) matrix
         tree_array = np.array(spline_array_list)
-        np.save(os.path.join(save_path, dataset_name, "labels", dataset_name, "{:04d}".format(spline_index)), tree_array)
+        # if not os.path.exists(os.path.join(save_path, dataset_name, "labels", dataset_name)):
+        #     os.makedirs(os.path.join(save_path, dataset_name, "labels", dataset_name))
+        # np.save(os.path.join(save_path, dataset_name, "labels", dataset_name, "{:04d}".format(spline_index)), tree_array)
+        np.save(os.path.join(save_path, dataset_name, f"{dataset_name}"), tree_array)
 
         # writes a text file for each tube with relevant parameters used to generate the geometry
-        with open(os.path.join(save_path, dataset_name, "info", "{:04d}.info.0".format(spline_index)), 'w+') as outfile:
+        # if not os.path.exists(os.path.join(save_path, dataset_name, "info")):
+        #     os.makedirs(os.path.join(save_path, dataset_name, "info"))
+        # with open(os.path.join(save_path, dataset_name, "info", "{:04d}.info.0".format(spline_index)), 'w+') as outfile:
+        #     json.dump(vessel_info, outfile, indent=2)
+        with open(os.path.join(save_path, dataset_name, f'{dataset_name}.info.json'), 'w+') as outfile:
             json.dump(vessel_info, outfile, indent=2)
