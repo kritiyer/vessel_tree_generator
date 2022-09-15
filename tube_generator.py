@@ -31,7 +31,7 @@ parser.add_argument('--warp', action='store_true', help="add random warping augm
 parser.add_argument('--constant_radius', action='store_true')
 parser.add_argument('--set_diameter', default=None, type=float)
 parser.add_argument('--num_stenoses', default=None, type=int)
-parser.add_argument('--stenosis_type', default="gaussian", type=str)
+parser.add_argument('--stenosis_type', default="gaussian", type=str, help="options are 'gaussian' or 'cosine'")
 parser.add_argument('--stenosis_position', nargs="*", default=None, type=int)
 parser.add_argument('--stenosis_severity', nargs="*", default=None, type=float)
 parser.add_argument('--stenosis_length', nargs="*", default=None, type=int, help="number of points in radius vector where stenosis will be introduced")
@@ -196,15 +196,7 @@ if __name__ == "__main__":
                 set_axes_equal(ax)
                 plt.axis('off')
                 # plt.show()
-                plt.savefig(os.path.join(save_path, dataset_name, f"{dataset_name}_3D"), bbox_inches='tight')
-                plt.close()
-
-                # plt.plot(C*1e3,np.expand_dims(new_radius_vec, axis=-1)*1e3)
-                plt.plot(C[:,0]*1e3,new_radius_vec*1e3)
-                plt.ylabel('Radius [mm]')
-                plt.xlabel('Position [mm]')
-                # plt.title(f'Stenosis is {int(num_stenosis_points[0]*(120/300))} mm long')
-                plt.savefig(os.path.join(save_path, dataset_name, f"{dataset_name}_2D"), bbox_inches='tight')
+                plt.savefig(os.path.join(save_path, dataset_name, "{}_{:04d}_3D".format(dataset_name, spline_index)), bbox_inches='tight')
                 plt.close()
 
         ###################################
@@ -229,15 +221,12 @@ if __name__ == "__main__":
 
         #saves geometry as npy file (X,Y,Z,R) matrix
         tree_array = np.array(spline_array_list)
-        # if not os.path.exists(os.path.join(save_path, dataset_name, "labels", dataset_name)):
-        #     os.makedirs(os.path.join(save_path, dataset_name, "labels", dataset_name))
-        # np.save(os.path.join(save_path, dataset_name, "labels", dataset_name, "{:04d}".format(spline_index)), tree_array)
-        np.save(os.path.join(save_path, dataset_name, f"{dataset_name}"), tree_array)
+        if not os.path.exists(os.path.join(save_path, dataset_name, "arrays")):
+            os.makedirs(os.path.join(save_path, dataset_name, "arrays"))
+        np.save(os.path.join(save_path, dataset_name, "arrays", "{}_{:04d}".format(dataset_name, spline_index)), tree_array)
 
         # writes a text file for each tube with relevant parameters used to generate the geometry
-        # if not os.path.exists(os.path.join(save_path, dataset_name, "info")):
-        #     os.makedirs(os.path.join(save_path, dataset_name, "info"))
-        # with open(os.path.join(save_path, dataset_name, "info", "{:04d}.info.0".format(spline_index)), 'w+') as outfile:
-        #     json.dump(vessel_info, outfile, indent=2)
-        with open(os.path.join(save_path, dataset_name, f'{dataset_name}.info.json'), 'w+') as outfile:
+        if not os.path.exists(os.path.join(save_path, dataset_name, "info")):
+            os.makedirs(os.path.join(save_path, dataset_name, "info"))
+        with open(os.path.join(save_path, dataset_name, "info", "{}_{:04d}.info.json".format(dataset_name, spline_index)), 'w+') as outfile:
             json.dump(vessel_info, outfile, indent=2)
