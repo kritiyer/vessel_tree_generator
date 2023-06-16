@@ -65,4 +65,4 @@ The output directory structure will be as follows:
 ## Citation
 If you find this work useful, please cite the following:
 
-**A Multi-Stage Neural Network Approach for Coronary 3D Reconstruction from Uncalibrated X-ray Angiography Images. Iyer, K., Nallamothu, B.K., Figueroa, C.A., Nadakuditi, R.R. *In submission*.**
+**A Multi-Stage Neural Network Approach for Coronary 3D Reconstruction from Uncalibrated X-ray Angiography Images. Iyer, K., Nallamothu, B.K., Figueroa, C.A., Nadakuditi, R.R. *In submission*.* https://doi.org/10.21203/rs.3.rs-2782923/v1*
