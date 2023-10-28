@@ -12,13 +12,14 @@ import argparse
 # general: required arguments
 parser = argparse.ArgumentParser('3D vessel tree generator')
 parser.add_argument('--save_path', default=None, type=str, required=True)
-parser.add_argument('--dataset_name', default="test", type=str)
-parser.add_argument('--num_trees', default=10, type=int)
+parser.add_argument('--dataset_name', default=None, type=str, required=True)
+parser.add_argument('--num_trees', default=10, type=int, required=True)
 parser.add_argument('--save_visualization', action='store_true', help="this flag will plot the generated 3D surfaces and save it as a PNG")
 
 # centerlines: optional
 parser.add_argument('--num_branches', default=0, type=int,
                     help="Number of side branches. Set to 0 for no side branches")
+parser.add_argument('--set_length', default=None, type=float, help="fix vessel length instead of randomizing within range")
 parser.add_argument('--vessel_type', default="RCA", type=str, help="Options are: 'cylinder, 'spline', and 'RCA'")
 parser.add_argument('--control_point_path', default="./RCA_branch_control_points/moderate", type=str)
 parser.add_argument('--num_centerline_points', default=200, type=int)
@@ -28,7 +29,9 @@ parser.add_argument('--warp', action='store_true', help="add random warping augm
 
 #radii/stenoses: optional
 parser.add_argument('--constant_radius', action='store_true')
+parser.add_argument('--set_diameter', default=None, type=float)
 parser.add_argument('--num_stenoses', default=None, type=int)
+parser.add_argument('--stenosis_type', default="gaussian", type=str, help="options are 'gaussian' or 'cosine'")
 parser.add_argument('--stenosis_position', nargs="*", default=None, type=int)
 parser.add_argument('--stenosis_severity', nargs="*", default=None, type=float)
 parser.add_argument('--stenosis_length', nargs="*", default=None, type=int, help="number of points in radius vector where stenosis will be introduced")
@@ -96,7 +99,10 @@ if __name__ == "__main__":
         branch_ID = 1
         vessel_info["tree_type"].append(main_branch_properties[branch_ID]["name"])
 
-        length = random.uniform(main_branch_properties[branch_ID]['min_length'], main_branch_properties[branch_ID]['max_length']) # convert to [m] to stay consistent with projection setup
+        if args.set_length is None:
+            length = random.uniform(main_branch_properties[branch_ID]['min_length'], main_branch_properties[branch_ID]['max_length']) # convert to [m] to stay consistent with projection setup
+        else:
+            length = args.set_length
         sample_size = supersampled_num_centerline_points
 
         if args.vessel_type == 'cylinder':
@@ -127,8 +133,10 @@ if __name__ == "__main__":
                 rand_stenoses = np.random.randint(0, 3)
                 key = "main_vessel"
                 main_is_true = True
-                max_radius = [random.uniform(0.004, main_branch_properties[branch_ID]['max_diameter']) / 2]
-
+                if args.set_diameter is None:
+                    max_radius = [random.uniform(0.004, main_branch_properties[branch_ID]['max_diameter']) / 2]
+                else:
+                    max_radius = [args.set_diameter/2]
             else:
                 rand_stenoses = np.random.randint(0, 2)
                 max_radius = [random.uniform(side_branch_properties[ind]['min_radius'], side_branch_properties[ind]['max_radius'])]
@@ -150,7 +158,7 @@ if __name__ == "__main__":
                                                                                                          stenosis_severity=args.stenosis_severity,
                                                                                                          stenosis_position=args.stenosis_position,
                                                                                                          stenosis_length=args.stenosis_length,
-                                                                                                         stenosis_type="gaussian",
+                                                                                                         stenosis_type=args.stenosis_type,
                                                                                                          return_surface=True)
             except ValueError:
                 print("Invalid sampling, skipping {}".format(i))
@@ -180,7 +188,7 @@ if __name__ == "__main__":
         # optional: plot 3D surface
         if args.save_visualization:
             if i < 10:
-                fig = plt.figure(figsize=(2,2), dpi=200, constrained_layout=True)
+                fig = plt.figure(figsize=(2,2), dpi=600, constrained_layout=True)
                 ax = fig.add_subplot(projection=Axes3D.name)
                 ax.view_init(elev=20., azim=-70)
                 for surf_coords in surface_coords:
@@ -188,7 +196,7 @@ if __name__ == "__main__":
                 set_axes_equal(ax)
                 plt.axis('off')
                 # plt.show()
-                plt.savefig(os.path.join(save_path, dataset_name, "{:04d}_3Dsurface".format(spline_index)), bbox_inches='tight')
+                plt.savefig(os.path.join(save_path, dataset_name, "{}_{:04d}_3D".format(dataset_name, spline_index)), bbox_inches='tight')
                 plt.close()
 
         ###################################
@@ -212,15 +220,13 @@ if __name__ == "__main__":
             vessel_info['phi_array'] = [float(j) for j in phi_array.tolist()]
 
         #saves geometry as npy file (X,Y,Z,R) matrix
-        if not os.path.exists(os.path.join(save_path, dataset_name, "labels", dataset_name)):
-            os.makedirs(os.path.join(save_path, dataset_name, "labels", dataset_name))
-        if not os.path.exists(os.path.join(save_path, dataset_name, "info")):
-            os.makedirs(os.path.join(save_path, dataset_name, "info"))
-
-        #saves geometry as npy file (X,Y,Z,R) matrix
         tree_array = np.array(spline_array_list)
-        np.save(os.path.join(save_path, dataset_name, "labels", dataset_name, "{:04d}".format(spline_index)), tree_array)
+        if not os.path.exists(os.path.join(save_path, dataset_name, "arrays")):
+            os.makedirs(os.path.join(save_path, dataset_name, "arrays"))
+        np.save(os.path.join(save_path, dataset_name, "arrays", "{}_{:04d}".format(dataset_name, spline_index)), tree_array)
 
         # writes a text file for each tube with relevant parameters used to generate the geometry
-        with open(os.path.join(save_path, dataset_name, "info", "{:04d}.info.0".format(spline_index)), 'w+') as outfile:
+        if not os.path.exists(os.path.join(save_path, dataset_name, "info")):
+            os.makedirs(os.path.join(save_path, dataset_name, "info"))
+        with open(os.path.join(save_path, dataset_name, "info", "{}_{:04d}.info.json".format(dataset_name, spline_index)), 'w+') as outfile:
             json.dump(vessel_info, outfile, indent=2)

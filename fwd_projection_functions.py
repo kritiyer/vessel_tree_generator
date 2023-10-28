@@ -272,10 +272,10 @@ def generate_projection_images(surface_coords, spline_index, num_projections, im
         # plt.imshow(blurred_binary_image, cmap="gray")
         # plt.show()
         if save_path is not None:
-            if not os.path.exists(os.path.join(save_path, partition, "images", partition)):
-                os.makedirs(os.path.join(save_path, partition, "images", partition))
+            if not os.path.exists(os.path.join(save_path, partition, "images")):
+                os.makedirs(os.path.join(save_path, partition, "images"))
             plt.imsave(
-                os.path.join(save_path, partition, "images", partition, "image{:04d}{}.png".format(spline_index,suffixes[plane_index])),
+                os.path.join(save_path, partition, "images", "image{:04d}{}.png".format(spline_index,suffixes[plane_index])),
                 blurred_binary_image, cmap="gray")
         image_list.append(blurred_binary_image)
 
